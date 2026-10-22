@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian Ksatria Penokohan Legenda 3D - Evaluasi Kelas 9</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            background-color: #091326;
+            color: #f8fafc;
+        }
+        .font-hero {
+            font-family: 'Cinzel', serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f59e0b;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(14px);
+            border: 2px solid rgba(245, 158, 11, 0.45);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 0 20px rgba(245, 158, 11, 0.08);
+        }
+        .option-btn {
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.2);
+        }
+    </style>
+</head>
+<body class="relative w-screen h-screen overflow-hidden">
+
+    <!-- 3D WebGL Canvas Background & Interactive Stepping Stones Arena -->
+    <div id="canvas-3d" class="absolute inset-0 w-full h-full z-0 cursor-grab active:cursor-grabbing"></div>
+
+    <!-- =====================================================
+         TOP NAVIGATION BAR (HUD)
+         ===================================================== -->
+    <header class="relative z-20 flex flex-wrap items-center justify-between px-4 py-3 md:px-8 bg-gradient-to-b from-slate-950/95 via-slate-900/75 to-transparent">
+        <div class="flex items-center space-x-3">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30 border-2 border-amber-200">
+                <i class="fa-solid fa-dragon text-xl text-slate-950"></i>
+            </div>
+            <div>
+                <h1 class="font-hero text-base sm:text-xl md:text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">
+                    KSATRIA PENOKOHAN LEGENDA 3D
+                </h1>
+                <p class="text-[11px] sm:text-xs text-amber-200/80 font-medium">
+                    Evaluasi 10 Soal (5 Jenis Penokohan Teks Legenda) • Kelas IX SMP
+                </p>
+            </div>
+        </div>
+
+        <!-- Right HUD Controls -->
+        <div class="flex items-center space-x-2 sm:space-x-3 mt-2 sm:mt-0">
+            <!-- Active Player Pill (Hidden on Home) -->
+            <div id="hud-player-info" class="hidden items-center space-x-2 bg-slate-900/90 border border-amber-500/40 rounded-full px-3.5 py-1.5 text-xs">
+                <i class="fa-solid fa-user-shield text-amber-400"></i>
+                <span id="hud-player-name" class="font-bold text-white">-</span>
+                <span id="hud-player-class" class="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">9A</span>
+            </div>
+
+            <!-- Live Score Pill -->
+            <div id="hud-score-pill" class="hidden items-center bg-slate-900/90 border border-emerald-500/40 rounded-full px-3.5 py-1.5 text-xs sm:text-sm">
+                <i class="fa-solid fa-star text-yellow-400 mr-1.5"></i>
+                <span id="hud-live-score" class="font-extrabold text-emerald-300">Skor: 0</span>
+            </div>
+
+            <!-- Teacher Spreadsheet Button -->
+            <button onclick="openSpreadsheetModal()" class="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm border border-emerald-300/50 shadow-lg shadow-emerald-600/30 transition-all">
+                <i class="fa-solid fa-table"></i>
+                <span>Spreadsheet Guru</span>
+                <span id="badge-total-records" class="px-1.5 py-0.5 rounded-md bg-slate-950/60 text-emerald-200 text-[10px] font-extrabold">0</span>
+            </button>
+
+            <!-- Sound Button -->
+            <button onclick="toggleAudio()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800/90 hover:bg-amber-500 hover:text-slate-950 border border-amber-400/40 flex items-center justify-center text-amber-300 transition-all" title="Suara Efek">
+                <i id="icon-audio" class="fa-solid fa-volume-high"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- =====================================================
+         SCREEN 1: BERANDA (LOGIN NAMA & KELAS 9A, 9B, 9C, 9D)
+         ===================================================== -->
+    <main id="screen-home" class="relative z-10 flex items-center justify-center w-full h-[calc(100vh-76px)] px-4">
+        <div class="glass-card w-full max-w-xl rounded-3xl p-6 sm:p-8 space-y-5 animate-fadeIn">
+            <div class="text-center space-y-2">
+                <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold">
+                    <i class="fa-solid fa-masks-theater"></i>
+                    <span>Spesial Materi: 5 Teknik Penokohan Teks Legenda</span>
+                </div>
+                <h2 class="font-hero text-2xl sm:text-3xl font-black text-white tracking-wide">
+                    ARENA WATAK & PENOKOHAN
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    Seberangi <strong>10 Pilar Batu Candi 3D</strong> dengan menjawab 10 soal Pilihan Ganda Tunggal tentang <strong>5 Jenis Penokohan Teks Legenda</strong>! Skor otomatis terekam di <strong>Spreadsheet Guru</strong>.
+                </p>
+            </div>
+
+            <!-- Question Breakdown Badges (5 Jenis Penokohan @ 2 Soal) -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-amber-500/30">
+                    <div class="text-sm font-black text-amber-400">2 Soal</div>
+                    <div class="text-[10px] text-slate-300 font-semibold leading-tight mt-0.5">1. Langsung (Analitik)</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-blue-500/30">
+                    <div class="text-sm font-black text-blue-400">2 Soal</div>
+                    <div class="text-[10px] text-slate-300 font-semibold leading-tight mt-0.5">2. Melalui Dialog</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-emerald-500/30">
+                    <div class="text-sm font-black text-emerald-400">2 Soal</div>
+                    <div class="text-[10px] text-slate-300 font-semibold leading-tight mt-0.5">3. Ciri Fisik Tokoh</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-900/90 border border-purple-500/30">
+                    <div class="text-sm font-black text-purple-400">2 Soal</div>
+                    <div class="text-[10px] text-slate-300 font-semibold leading-tight mt-0.5">4. Tindakan Tokoh</div>
+                </div>
+                <div class="col-span-2 sm:col-span-1 p-2 rounded-xl bg-slate-900/90 border border-pink-500/30">
+                    <div class="text-sm font-black text-pink-400">2 Soal</div>
+                    <div class="text-[10px] text-slate-300 font-semibold leading-tight mt-0.5">5. Pikiran & Perasaan</div>
+                </div>
+            </div>
+
+            <!-- Form Input Nama & Kelas -->
+            <div class="space-y-4 pt-1">
+                <div>
+                    <label for="input-student-name" class="block text-xs font-bold uppercase tracking-wider text-amber-300 mb-1.5">
+                        <i class="fa-solid fa-id-card mr-1"></i> Nama Lengkap Siswa
+                    </label>
+                    <input
+                        type="text"
+                        id="input-student-name"
+                        placeholder="Ketik nama lengkapmu di sini..."
+                        class="w-full px-4 py-3 rounded-xl bg-slate-900/95 border-2 border-slate-700 focus:border-amber-400 focus:outline-none text-white font-semibold text-sm placeholder-slate-500 transition-colors"
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-amber-300 mb-1.5">
+                        <i class="fa-solid fa-school mr-1"></i> Pilih Kelas
+                    </label>
+                    <div class="grid grid-cols-4 gap-2.5" id="class-selector">
+                        <button type="button" onclick="selectClass('9A')" data-class="9A" class="class-btn py-3 rounded-xl font-extrabold text-sm border-2 border-amber-400 bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all">
+                            9A
+                        </button>
+                        <button type="button" onclick="selectClass('9B')" data-class="9B" class="class-btn py-3 rounded-xl font-extrabold text-sm border-2 border-slate-700 bg-slate-900/90 text-slate-300 hover:border-amber-400/60 transition-all">
+                            9B
+                        </button>
+                        <button type="button" onclick="selectClass('9C')" data-class="9C" class="class-btn py-3 rounded-xl font-extrabold text-sm border-2 border-slate-700 bg-slate-900/90 text-slate-300 hover:border-amber-400/60 transition-all">
+                            9C
+                        </button>
+                        <button type="button" onclick="selectClass('9D')" data-class="9D" class="class-btn py-3 rounded-xl font-extrabold text-sm border-2 border-slate-700 bg-slate-900/90 text-slate-300 hover:border-amber-400/60 transition-all">
+                            9D
+                        </button>
+                    </div>
+                </div>
+
+                <div id="home-error-msg" class="hidden text-xs font-bold text-rose-400 bg-rose-950/60 border border-rose-500/40 rounded-xl px-3.5 py-2.5">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Silakan isi Nama Lengkap terlebih dahulu sebelum memulai!
+                </div>
+
+                <button onclick="startQuizGame()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-base tracking-wide shadow-xl shadow-amber-500/25 flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.01]">
+                    <i class="fa-solid fa-play"></i>
+                    <span>MULAI PETUALANGAN 3D</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- =====================================================
+         SCREEN 2: ARENA SOAL PILIHAN GANDA 3D
+         ===================================================== -->
+    <section id="screen-quiz" class="relative z-10 hidden flex-col justify-between w-full h-[calc(100vh-76px)] px-3 sm:px-6 pb-4 pt-1 pointer-events-none">
+        
+        <!-- Top Progress Stepping Bar -->
+        <div class="w-full max-w-4xl mx-auto pointer-events-auto">
+            <div class="glass-card rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center space-x-2">
+                    <span id="quiz-category-badge" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-black text-xs uppercase">
+                        Pengertian
+                    </span>
+                    <span id="quiz-progress-text" class="text-xs sm:text-sm font-bold text-slate-200">
+                        Soal 1 dari 10
+                    </span>
+                </div>
+
+                <!-- 10 Stepping Stone Dots -->
+                <div id="progress-dots" class="flex items-center space-x-1.5">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom/Center Question & Single Multiple Choice Box -->
+        <div class="w-full max-w-4xl mx-auto pointer-events-auto my-auto sm:my-0">
+            <div class="glass-card rounded-3xl p-4 sm:p-6 md:p-7 space-y-4 max-h-[75vh] overflow-y-auto">
+                
+                <!-- Story Excerpt / Stimulus Box (If question has quote) -->
+                <div id="quiz-stimulus-box" class="hidden p-3.5 rounded-2xl bg-amber-950/40 border-l-4 border-amber-400 text-amber-100 text-xs sm:text-sm italic leading-relaxed">
+                </div>
+
+                <!-- Question Text -->
+                <h3 id="quiz-question-text" class="text-sm sm:text-base md:text-lg font-bold text-white leading-relaxed">
+                    Memuat pertanyaan...
+                </h3>
+
+                <!-- 4 Single Multiple Choice Options (A, B, C, D) -->
+                <div id="quiz-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-1">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Explanation & Next Button Bar -->
+                <div id="quiz-feedback-bar" class="hidden pt-2 border-t border-slate-700/80 flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div id="quiz-feedback-text" class="text-xs sm:text-sm font-semibold leading-snug flex-1"></div>
+                    <button id="btn-next-question" onclick="nextQuestion()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm whitespace-nowrap shadow-lg transition-all">
+                        Lanjut ke Batu Berikutnya <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         SCREEN 3: HASIL AKHIR SISWA & TOMBOL SPREADSHEET
+         ===================================================== -->
+    <section id="screen-result" class="relative z-10 hidden items-center justify-center w-full h-[calc(100vh-76px)] px-4">
+        <div class="glass-card w-full max-w-2xl rounded-3xl p-6 sm:p-8 text-center space-y-6 max-h-[88vh] overflow-y-auto">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 mx-auto flex items-center justify-center text-slate-950 text-4xl shadow-xl shadow-amber-500/30 border-2 border-yellow-200">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+
+            <div class="space-y-1">
+                <span class="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold">
+                    <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Data Tersimpan ke Spreadsheet Guru
+                </span>
+                <h2 class="font-hero text-2xl sm:text-3xl font-black text-white pt-1">
+                    MISI SELESAI, <span id="res-student-name" class="text-amber-400">KSATRIA</span>!
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-300">
+                    Kelas: <strong id="res-student-class" class="text-amber-300">9A</strong> • Waktu Selesai: <span id="res-timestamp">-</span>
+                </p>
+            </div>
+
+            <!-- Score Breakdown Cards -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-amber-500/40">
+                    <div class="text-xs text-slate-400 font-semibold">Nilai Akhir</div>
+                    <div id="res-final-score" class="text-2xl sm:text-3xl font-black text-amber-400 mt-0.5">100</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-emerald-500/40">
+                    <div class="text-xs text-slate-400 font-semibold">Jawaban Benar</div>
+                    <div id="res-correct-count" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-0.5">10 / 10</div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-blue-500/40">
+                    <div class="text-xs text-slate-400 font-semibold">Predikat</div>
+            <!-- Per-Category Breakdown (5 Jenis Penokohan) -->
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-700 text-left space-y-2">
+                <div class="text-xs font-bold uppercase tracking-wider text-amber-300 mb-2">
+                    <i class="fa-solid fa-chart-pie mr-1"></i> Rincian Skor 5 Jenis Penokohan:
+                </div>
+                <div class="grid sm:grid-cols-2 gap-2 text-xs">
+                    <div class="flex justify-between p-2 rounded-lg bg-slate-800/80">
+                        <span class="text-slate-300">1. Secara Langsung / Analitik (2 Soal):</span>
+                        <strong id="res-cat-langsung" class="text-amber-300">2/2</strong>
+                    </div>
+                    <div class="flex justify-between p-2 rounded-lg bg-slate-800/80">
+                        <span class="text-slate-300">2. Melalui Dialog Antartokoh (2 Soal):</span>
+                        <strong id="res-cat-dialog" class="text-blue-300">2/2</strong>
+                    </div>
+                    <div class="flex justify-between p-2 rounded-lg bg-slate-800/80">
+                        <span class="text-slate-300">3. Melalui Ciri Fisik Tokoh (2 Soal):</span>
+                        <strong id="res-cat-fisik" class="text-emerald-300">2/2</strong>
+                    </div>
+                    <div class="flex justify-between p-2 rounded-lg bg-slate-800/80">
+                        <span class="text-slate-300">4. Melalui Tindakan / Perilaku (2 Soal):</span>
+                        <strong id="res-cat-tindakan" class="text-purple-300">2/2</strong>
+                    </div>
+                    <div class="flex justify-between p-2 rounded-lg bg-slate-800/80 sm:col-span-2">
+                        <span class="text-slate-300">5. Melalui Pikiran & Perasaan Tokoh (2 Soal):</span>
+                        <strong id="res-cat-pikiran" class="text-pink-300">2/2</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <button onclick="returnToHome()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm border border-slate-600 transition-all">
+                    <i class="fa-solid fa-user-plus mr-1.5"></i> Ganti Siswa / Main Lagi
+                </button>
+                <button onclick="openSpreadsheetModal()" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-600/30 transition-all">
+                    <i class="fa-solid fa-file-excel mr-1.5"></i> Buka Spreadsheet Skor Guru
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         MODAL SPREADSHEET GURU (FILTER KELAS, EXPORT CSV/EXCEL, COPY)
+         ===================================================== -->
+    <div id="modal-spreadsheet" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md">
+        <div class="glass-card w-full max-w-6xl max-h-[90vh] rounded-3xl flex flex-col overflow-hidden border-2 border-emerald-500/50">
+            
+            <!-- Modal Header -->
+            <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 bg-slate-900 border-b border-slate-700">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400 flex items-center justify-center text-emerald-300 text-lg">
+                        <i class="fa-solid fa-table-list"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-hero text-base sm:text-xl font-bold text-white">
+                            SPREADSHEET REKAP SKOR MURID (KELAS 9A - 9D)
+                        </h3>
+                        <p class="text-xs text-slate-400">
+                            Fasilitas bagi Guru untuk memantau, menyaring per kelas, menyalin ke Google Sheets, atau mengunduh file Excel (.CSV)
+                        </p>
+                    </div>
+                </div>
+                <button onclick="closeSpreadsheetModal()" class="px-3.5 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600 text-rose-200 hover:text-white border border-rose-500/40 text-xs font-bold transition-all">
+                    <i class="fa-solid fa-xmark mr-1"></i> Tutup
+                </button>
+            </div>
+
+            <!-- Toolbar: Filter Kelas & Export Buttons -->
+            <div class="p-4 bg-slate-900/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                <!-- Filter Kelas -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold text-slate-300 mr-1"><i class="fa-solid fa-filter text-amber-400 mr-1"></i> Filter Kelas:</span>
+                    <button onclick="filterSpreadsheet('ALL')" id="flt-ALL" class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-extrabold text-xs transition-all">Semua Kelas</button>
+                    <button onclick="filterSpreadsheet('9A')" id="flt-9A" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold text-xs transition-all">9A</button>
+                    <button onclick="filterSpreadsheet('9B')" id="flt-9B" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold text-xs transition-all">9B</button>
+                    <button onclick="filterSpreadsheet('9C')" id="flt-9C" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold text-xs transition-all">9C</button>
+                    <button onclick="filterSpreadsheet('9D')" id="flt-9D" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold text-xs transition-all">9D</button>
+                </div>
+
+                <!-- Spreadsheet Action Buttons -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="addDemoStudents()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-bold text-xs transition-all" title="Tambahkan contoh data siswa untuk simulasi tabel">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 mr-1"></i> + Data Contoh
+                    </button>
+                    <button onclick="copySpreadsheetTSV()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow transition-all">
+                        <i class="fa-solid fa-copy mr-1"></i> Salin Tabel (Paste ke Excel/Sheets)
+                    </button>
+                    <button onclick="downloadCSVSpreadsheet()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20 transition-all">
+                        <i class="fa-solid fa-download mr-1"></i> Unduh File .CSV (Excel)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Summary Statistics Strip -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 px-5 py-3 bg-slate-950/60 border-b border-slate-800 text-xs">
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span class="text-slate-400">Total Murid:</span>
+                    <strong id="stat-count" class="text-white text-sm">0 Siswa</strong>
+                </div>
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span class="text-slate-400">Rata-Rata Kelas:</span>
+                    <strong id="stat-avg" class="text-amber-400 text-sm">0</strong>
+                </div>
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span class="text-slate-400">Nilai Tertinggi:</span>
+                    <strong id="stat-max" class="text-emerald-400 text-sm">0</strong>
+                </div>
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span class="text-slate-400">Ketuntasan (≥70):</span>
+                    <strong id="stat-pass" class="text-blue-400 text-sm">0%</strong>
+                </div>
+            </div>
+
+            <!-- Spreadsheet Table Body -->
+            <div class="flex-1 overflow-auto p-4 sm:p-5">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <thead>
+                        <tr class="bg-slate-800/90 text-amber-300 uppercase text-[11px] tracking-wider border-b-2 border-amber-500/40">
+                            <th class="py-3 px-2.5 rounded-tl-xl">No</th>
+                            <th class="py-3 px-2.5">Nama Siswa</th>
+                            <th class="py-3 px-2 text-center">Kelas</th>
+                            <th class="py-3 px-2 text-center">Langsung (2)</th>
+                            <th class="py-3 px-2 text-center">Dialog (2)</th>
+                            <th class="py-3 px-2 text-center">Ciri Fisik (2)</th>
+                            <th class="py-3 px-2 text-center">Tindakan (2)</th>
+                            <th class="py-3 px-2 text-center">Pikiran (2)</th>
+                            <th class="py-3 px-2 text-center">Benar</th>
+                            <th class="py-3 px-2.5 text-center">Skor Akhir</th>
+                            <th class="py-3 px-2.5 rounded-tr-xl">Waktu Selesai</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spreadsheet-tbody" class="divide-y divide-slate-800">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-5 py-3 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+                <span id="spreadsheet-status-msg">Tips: Klik "Unduh File .CSV (Excel)" untuk membuka rekap nilai langsung di Microsoft Excel atau Google Spreadsheet.</span>
+                <button onclick="clearSpreadsheetData()" class="text-rose-400 hover:text-rose-300 font-semibold">
+                    <i class="fa-solid fa-trash-can mr-1"></i> Reset Tabel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Notification Toast -->
+    <div id="toast-banner" class="fixed bottom-5 right-5 z-50 hidden">
+        <div class="glass-card px-4 py-3 rounded-2xl border-2 border-emerald-400 flex items-center space-x-3 shadow-2xl">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+            <span id="toast-message" class="text-xs sm:text-sm font-bold text-white">Berhasil disalin!</span>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         JAVASCRIPT: 10 QUESTIONS, SPREADSHEET & THREE.JS 3D
+         ===================================================== -->
+    <script>
+        /* ==============================================================
+           1. BANK 10 SOAL PILIHAN GANDA TUNGGAL (5 JENIS PENOKOHAN)
+              - 2 Soal Penokohan Secara Langsung (Analitik)
+              - 2 Soal Penokohan Melalui Dialog Antartokoh
+              - 2 Soal Penokohan Melalui Ciri Fisik Tokoh
+              - 2 Soal Penokohan Melalui Tindakan / Perilaku Tokoh
+              - 2 Soal Penokohan Melalui Pikiran & Perasaan Tokoh
+           ============================================================== */
+        const questionsBank = [
+            // JENIS 1: PENOKOHAN SECARA LANGSUNG / ANALITIK (Soal 1 & 2)
+            {
+                id: 1,
+                category: "Secara Langsung",
+                badgeColor: "bg-amber-500 text-slate-950",
+                stimulus: "\"Di sebuah desa di lereng Gunung Merapi, hiduplah seorang nenek tua bernama Nyai Rambi. Ia dikenal oleh seluruh warga sebagai pribadi yang sangat dermawan, penyabar, dan suka menolong siapa saja yang sedang kesulitan tanpa mengharap imbalan.\"",
+                question: "Berdasarkan kutipan teks legenda di atas, pengarang menggambarkan watak tokoh Nyai Rambi menggunakan teknik...",
+                options: [
+                    "A. Penokohan secara langsung (analitik) karena sifat tokoh disebutkan langsung oleh pengarang",
+                    "B. Penokohan melalui ciri fisik karena menjelaskan usia dan pakaian tokoh",
+                    "C. Penokohan melalui dialog antartokoh karena memuat percakapan langsung",
+                    "D. Penokohan melalui pikiran tokoh karena menceritakan lamunan batin Nyai Rambi"
+                ],
+                correct: 0,
+                explanation: "Pengarang memaparkan watak tokoh secara langsung (analitik) dengan menyebutkan kata sifat 'sangat dermawan, penyabar, dan suka menolong'."
+            },
+            {
+                id: 2,
+                category: "Secara Langsung",
+                badgeColor: "bg-amber-500 text-slate-950",
+                stimulus: null,
+                question: "Manakah di antara kalimat kutipan legenda berikut yang menggunakan teknik penokohan Secara Langsung (Metode Analitik)?",
+                options: [
+                    "A. \"Pergi kau dari kapalku! Aku tidak punya ibu kumal sepertimu!\" bentak Malin Kundang.",
+                    "B. Putri Mandalika adalah seorang gadis yang berhati lembut, rendah hati, serta sangat mencintai kedamaian rakyatnya.",
+                    "C. Sangkuriang langsung mencabut pohon besar itu dan melemparkannya ke tengah sungai.",
+                    "D. Tubuh raksasa Buto Ijo sangat tinggi menjulang dengan mata bulat yang menyala merah."
+                ],
+                correct: 1,
+                explanation: "Pilihan B secara langsung menyebutkan sifat tokoh Putri Mandalika ('berhati lembut, rendah hati, serta sangat mencintai kedamaian') tanpa melalui dialog maupun tindakan."
+            },
+
+            // JENIS 2: PENOKOHAN MELALUI DIALOG ANTARTOKOH (Soal 3 & 4)
+            {
+                id: 3,
+                category: "Melalui Dialog",
+                badgeColor: "bg-blue-500 text-white",
+                stimulus: "\"Hai perempuan tua yang miskin dan dekil! Berani-beraninya kau mengaku sebagai ibuku di depan istriku yang bangsawan ini! Ibuku tidak mungkin berpakaian compang-camping sepertimu!\" hardik Malin Kundang dari atas anjungan kapalnya.",
+                question: "Melalui kutipan dialog tokoh Malin Kundang di atas, watak Malin Kundang yang tergambar secara dramatik adalah...",
+                options: [
+                    "A. Rendah hati, jujur, dan sangat menghormati orang tua",
+                    "B. Sombong, kasar, dan durhaka kepada ibu kandungnya",
+                    "C. Penakut, pemalu, dan mudah menyerah pada keadaan",
+                    "D. Bijaksana, adil, dan gemar berbagi harta kekayaan"
+                ],
+                correct: 1,
+                explanation: "Dari ucapan langsung (dialog) Malin Kundang yang menghina dan menolak ibunya, tergambar jelas wataknya yang sombong, kasar, dan durhaka."
+            },
+            {
+                id: 4,
+                category: "Melalui Dialog",
+                badgeColor: "bg-blue-500 text-white",
+                stimulus: "\"Tenanglah, Ayahanda Prabu. Biarkanlah hamba yang mengorbankan diri terjun ke laut selatan ini. Hamba tidak rela jika seluruh rakyat kerajaan harus berperang dan menumpahkan darah hanya karena memperebutkan diri hamba,\" ucap Putri Mandalika dengan suara bergetar namun mantap.",
+                question: "Teknik penokohan dan watak tokoh Putri Mandalika yang terungkap dalam kutipan di atas adalah...",
+                options: [
+                    "A. Melalui ciri fisik — wataknya angkuh dan keras kepala",
+                    "B. Secara langsung (analitik) — wataknya egois dan mementingkan diri sendiri",
+                    "C. Melalui dialog tokoh — wataknya rela berkorban dan peduli pada keselamatan rakyat",
+                    "D. Melalui lingkungan sekitar — wataknya licik dan suka mengadu domba"
+                ],
+                correct: 2,
+                explanation: "Kutipan tersebut berupa kalimat ucapan langsung (dialog) tokoh yang mencerminkan sifat rela berkorban demi keselamatan rakyat."
+            },
+
+            // JENIS 3: PENOKOHAN MELALUI CIRI FISIK TOKOH (Soal 5 & 6)
+            {
+                id: 5,
+                category: "Ciri Fisik",
+                badgeColor: "bg-emerald-500 text-slate-950",
+                stimulus: "\"Dari balik gua batu yang gelap, keluarlah sosok raksasa penjaga hutan. Tubuhnya tinggi besar menjulang bagai pohon beringin tua, dadanya bidang penuh bekas luka pertarungan, matanya melotot tajam semerah bara api, dan taringnya mencuat keluar dari sudut bibirnya.\"",
+                question: "Penggambaran ciri-ciri fisik tokoh dalam kutipan legenda di atas bertujuan untuk menunjukkan kesan watak tokoh yang...",
+                options: [
+                    "A. Lemah lembut, ramah, dan penyayang anak-anak",
+                    "B. Garang, buas, kuat, dan menakutkan",
+                    "C. Cerdik, jenaka, dan suka menghibur warga desa",
+                    "D. Rapuh, sakit-sakitan, dan mudah putus asa"
+                ],
+                correct: 1,
+                explanation: "Deskripsi fisik seperti tubuh tinggi menjulang, mata melotot semerah bara api, dan bertaring digunakan pengarang untuk menggambarkan sosok yang garang, buas, dan menakutkan."
+            },
+            {
+                id: 6,
+                category: "Ciri Fisik",
+                badgeColor: "bg-emerald-500 text-slate-950",
+                stimulus: "\"Meski tahun-tahun telah berlalu, wajah Dayang Sumbi tetap tampak berseri-seri dan awet muda. Senyum di bibirnya selalu teduh bagai embun pagi, sorot matanya bening menenangkan, dan tutur sapanya halus memikat hati siapa pun.\"",
+                question: "Dalam kutipan Legenda Sangkuriang tersebut, pengarang memperkenalkan karakter Dayang Sumbi yang anggun dan menenangkan melalui teknik...",
+                options: [
+                    "A. Deskripsi ciri fisik dan raut wajah tokoh",
+                    "B. Konflik batin dan penyesalan di dalam pikiran tokoh",
+                    "C. Perdebatan sengit antartokoh di istana",
+                    "D. Tindakan tokoh saat melarikan diri ke hutan"
+                ],
+                correct: 0,
+                explanation: "Pengarang melukiskan wajah yang berseri, senyum teduh, dan sorot mata bening yang merupakan penokohan melalui ciri fisik/raut wajah."
+            },
+
+            // JENIS 4: PENOKOHAN MELALUI TINDAKAN / PERILAKU TOKOH (Soal 7 & 8)
+            {
+                id: 7,
+                category: "Tindakan Tokoh",
+                badgeColor: "bg-purple-500 text-white",
+                stimulus: "\"Melihat seribu candi hampir selesai sebelum fajar, Roro Jonggrang tidak tinggal diam. Ia bergegas membangunkan seluruh gadis desa untuk menumbuk lesung padi beramai-ramai dan memerintahkan prajurit membakar tumpukan jerami di sisi timur agar langit tampak memerah seperti pagi hari.\"",
+                question: "Berdasarkan tindakan/perilaku yang dilakukan Roro Jonggrang pada kutipan di atas, watak sang putri adalah...",
+                options: [
+                    "A. Pasrah dan menerima nasib begitu saja tanpa berusaha",
+                    "B. Banyak akal (cerdik) dalam mencari siasat untuk menggagalkan syarat lawan",
+                    "C. Jujur dan selalu menepati kesepakatan dengan ksatria",
+                    "D. Pemalas dan suka menunda-nunda pekerjaan"
+                ],
+                correct: 1,
+                explanation: "Perbuatan Roro Jonggrang yang menyuruh warga menumbuk lesung dan membakar jerami membuktikan melalui tindakan bahwa ia banyak akal/cerdik dalam bersiasat."
+            },
+            {
+                id: 8,
+                category: "Tindakan Tokoh",
+                badgeColor: "bg-purple-500 text-white",
+                stimulus: "\"Di tengah teriknya matahari, Samosir membuka bungkusan daun pisang berisi nasi dan lauk ikan mas yang seharusnya ia antarkan untuk ayahnya di ladang. Tanpa menyisakan sedikit pun untuk sang ayah, Samosir melahap habis seluruh makanan itu lalu tertidur pulas di bawah pohon.\"",
+                question: "Teknik penokohan yang digunakan pengarang untuk menunjukkan sifat Samosir yang tidak amanah dan menuruti hawa nafsu dalam kutipan tersebut adalah...",
+                options: [
+                    "A. Melalui dialog perdebatan dengan ibunya",
+                    "B. Melalui tindakan atau tingkah laku tokoh saat mengantar bekal",
+                    "C. Secara langsung disebutkan di awal kalimat oleh pengarang",
+                    "D. Melalui ciri-ciri fisik tubuh Samosir yang tinggi"
+                ],
+                correct: 1,
+                explanation: "Sifat tidak amanah Samosir ditunjukkan secara tidak langsung melalui perbuatan/tindakannya memakan habis bekal milik ayahnya."
+            },
+
+            // JENIS 5: PENOKOHAN MELALUI PIKIRAN & PERASAAN TOKOH (Soal 9 & 10)
+            {
+                id: 9,
+                category: "Pikiran & Perasaan",
+                badgeColor: "bg-pink-500 text-white",
+                stimulus: "\"Dayang Sumbi tertegun menatap bekas luka di kepala pemuda gagah itu. Hatinya berdesir hebat penuh ketakutan. 'Tidak mungkin! Pemuda yang hendak menikahiku ini ternyata adalah Sangkuriang, anak kandungku sendiri! Aku harus mencari syarat yang mustahil agar pernikahan terlarang ini batal,' batin Dayang Sumbi dengan gelisah.\"",
+                question: "Kutipan di atas menggambarkan kecemasan serta keteguhan hati Dayang Sumbi untuk mencegah pernikahan terlarang melalui teknik...",
+                options: [
+                    "A. Penokohan melalui pikiran dan perasaan batin tokoh (monolog batin)",
+                    "B. Penokohan melalui deskripsi pakaian dan postur tubuh tokoh",
+                    "C. Penokohan secara langsung oleh narator di luar cerita",
+                    "D. Penokohan melalui komentar tokoh sampingan"
+                ],
+                correct: 0,
+                explanation: "Kutipan tersebut menampilkan gejolak perasaan ('hatinya berdesir hebat') serta suara hati/pikiran tokoh ('batin Dayang Sumbi dengan gelisah')."
+            },
+            {
+                id: 10,
+                category: "Pikiran & Perasaan",
+                badgeColor: "bg-pink-500 text-white",
+                stimulus: "\"Toba terduduk lemas memandangi air bah yang kian meninggi menenggelamkan desanya. Dada Toba terasa sesak oleh penyesalan yang mendalam. Di dalam kepalanya terus terngiang betapa bodohnya ia karena gagal menahan amarah hingga melanggar sumpah suci kepada istrinya sendiri.\"",
+                question: "Berdasarkan penggambaran pikiran dan perasaan tokoh Toba pada kutipan di atas, keadaan batin tokoh yang ditonjolkan adalah...",
+                options: [
+                    "A. Bangga dan gembira karena desanya berubah menjadi danau luas",
+                    "B. Menyesal secara mendalam karena telah melanggar janji akibat kemarahannya",
+                    "C. Dendam dan ingin menantang istrinya bertarung kembali",
+                    "D. Tenang dan tidak peduli terhadap bencana yang terjadi"
+                ],
+                correct: 1,
+                explanation: "Melalui lukisan perasaan dan isi pikiran tokoh Toba, tergambar jelas rasa penyesalan yang mendalam atas kesalahannya melanggar sumpah."
+            }
+        ];
+
+        /* ==========================================
+           2. STATE GAME & DATA SPREADSHEET GURU
+           ========================================== */
+        let selectedClass = "9A";
+        let currentStudentName = "";
+        let currentQuestionIdx = 0;
+        let currentScore = 0;
+        let correctCount = 0;
+        let categoryCorrect = {
+            "Secara Langsung": 0,
+            "Melalui Dialog": 0,
+            "Ciri Fisik": 0,
+            "Tindakan Tokoh": 0,
+            "Pikiran & Perasaan": 0
+        };
+        let isAnswered = false;
+        let soundOn = true;
+        let activeFilterClass = "ALL";
+
+        // In-memory array of student records for the Teacher Spreadsheet
+        const studentSpreadsheetRecords = [];
+
+        /* ==========================================
+           3. SYNTHESIZED SOUND EFFECTS (WEB AUDIO)
+           ========================================== */
+        let audioCtx = null;
+        function playTone(type) {
+            if (!soundOn) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(540, now);
+                    osc.frequency.exponentialRampToValueAtTime(720, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.09);
+                    osc.frequency.setValueAtTime(783.99, now + 0.18);
+                    osc.frequency.setValueAtTime(1046.5, now + 0.28);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(210, now);
+                    osc.frequency.linearRampToValueAtTime(140, now + 0.25);
+                    gain.gain.setValueAtTime(0.13, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {}
+        }
+
+        function toggleAudio() {
+            soundOn = !soundOn;
+            const icon = document.getElementById('icon-audio');
+            icon.className = soundOn ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-slate-500';
+            if (soundOn) playTone('click');
+        }
+
+        /* ==========================================
+           4. HOME SCREEN & QUIZ LOGIC
+           ========================================== */
+        function selectClass(cls) {
+            playTone('click');
+            selectedClass = cls;
+            document.querySelectorAll('.class-btn').forEach(btn => {
+                if (btn.dataset.class === cls) {
+                    btn.className = "class-btn py-3 rounded-xl font-extrabold text-sm border-2 border-amber-400 bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all";
+                } else {
+                    btn.className = "class-btn py-3 rounded-xl font-extrabold text-sm border-2 border-slate-700 bg-slate-900/90 text-slate-300 hover:border-amber-400/60 transition-all";
+                }
+            });
+        }
+
+        function startQuizGame() {
+            const nameInput = document.getElementById('input-student-name').value.trim();
+            const errBox = document.getElementById('home-error-msg');
+
+            if (!nameInput) {
+                playTone('wrong');
+                errBox.classList.remove('hidden');
+                document.getElementById('input-student-name').focus();
+                return;
+            }
+
+            errBox.classList.add('hidden');
+            playTone('click');
+
+            currentStudentName = nameInput;
+            currentQuestionIdx = 0;
+            currentScore = 0;
+            correctCount = 0;
+            categoryCorrect = {
+                "Secara Langsung": 0,
+                "Melalui Dialog": 0,
+                "Ciri Fisik": 0,
+                "Tindakan Tokoh": 0,
+                "Pikiran & Perasaan": 0
+            };
+
+            // Update Top HUD
+            document.getElementById('hud-player-name').textContent = currentStudentName;
+            document.getElementById('hud-player-class').textContent = selectedClass;
+            document.getElementById('hud-player-info').classList.remove('hidden');
+            document.getElementById('hud-player-info').classList.add('flex');
+
+            document.getElementById('hud-live-score').textContent = `Skor: 0`;
+            document.getElementById('hud-score-pill').classList.remove('hidden');
+            document.getElementById('hud-score-pill').classList.add('flex');
+
+            // Switch Screen
+            document.getElementById('screen-home').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('flex');
+
+            const quizScreen = document.getElementById('screen-quiz');
+            quizScreen.classList.remove('hidden');
+            quizScreen.classList.add('flex');
+
+            reset3DStonesColor();
+            moveHeroToStone(0);
+            renderProgressDots();
+            loadCurrentQuestion();
+        }
+
+        function renderProgressDots() {
+            const container = document.getElementById('progress-dots');
+            container.innerHTML = '';
+            questionsBank.forEach((q, idx) => {
+                const dot = document.createElement('div');
+                dot.id = `prog-dot-${idx}`;
+                dot.className = `w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-extrabold border transition-all ${
+                    idx === 0
+                        ? 'bg-amber-500 text-slate-950 border-amber-200 scale-110'
+                        : 'bg-slate-800 text-slate-400 border-slate-600'
+                }`;
+                dot.textContent = idx + 1;
+                container.appendChild(dot);
+            });
+        }
+
+        function loadCurrentQuestion() {
+            isAnswered = false;
+            const q = questionsBank[currentQuestionIdx];
+
+            // Badge & Progress Text
+            const badge = document.getElementById('quiz-category-badge');
+            badge.className = `px-2.5 py-1 rounded-lg font-black text-xs uppercase ${q.badgeColor}`;
+            badge.textContent = `Penokohan: ${q.category}`;
+            document.getElementById('quiz-progress-text').textContent = `Soal ${currentQuestionIdx + 1} dari ${questionsBank.length}`;
+
+            // Stimulus Quote Box
+            const stimBox = document.getElementById('quiz-stimulus-box');
+            if (q.stimulus) {
+                stimBox.textContent = q.stimulus;
+                stimBox.classList.remove('hidden');
+            } else {
+                stimBox.classList.add('hidden');
+            }
+
+            // Question Text
+            document.getElementById('quiz-question-text').textContent = `${currentQuestionIdx + 1}. ${q.question}`;
+
+            // Options Grid (Single Choice)
+            const grid = document.getElementById('quiz-options-grid');
+            grid.innerHTML = '';
+            q.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `opt-btn-${idx}`;
+                btn.className = "option-btn text-left p-3.5 rounded-2xl bg-slate-900/95 hover:bg-slate-800 border-2 border-slate-700 hover:border-amber-400 text-xs sm:text-sm font-semibold text-slate-100 flex items-start space-x-2.5";
+                btn.innerHTML = `<span class="flex-1 leading-relaxed">${optText}</span>`;
+                btn.onclick = () => selectAnswer(idx);
+                grid.appendChild(btn);
+            });
+
+            // Hide Feedback Bar
+            const fbBar = document.getElementById('quiz-feedback-bar');
+            fbBar.classList.add('hidden');
+            fbBar.classList.remove('flex');
+
+            // Highlight Current Dot
+            const currentDot = document.getElementById(`prog-dot-${currentQuestionIdx}`);
+            if (currentDot) {
+                currentDot.classList.add('ring-2', 'ring-amber-300', 'scale-110');
+            }
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const q = questionsBank[currentQuestionIdx];
+            const isCorrect = selectedIndex === q.correct;
+
+            const allBtns = document.querySelectorAll('#quiz-options-grid button');
+            allBtns.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === q.correct) {
+                    btn.className = "option-btn text-left p-3.5 rounded-2xl bg-emerald-950/90 border-2 border-emerald-400 text-xs sm:text-sm font-extrabold text-emerald-200 flex items-center justify-between shadow-lg";
+                    btn.innerHTML += `<i class="fa-solid fa-circle-check text-emerald-400 text-base ml-2"></i>`;
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.className = "option-btn text-left p-3.5 rounded-2xl bg-rose-950/90 border-2 border-rose-500 text-xs sm:text-sm font-bold text-rose-200 flex items-center justify-between";
+                    btn.innerHTML += `<i class="fa-solid fa-circle-xmark text-rose-400 text-base ml-2"></i>`;
+                } else {
+                    btn.className = "option-btn text-left p-3.5 rounded-2xl bg-slate-900/50 border border-slate-800 text-xs sm:text-sm text-slate-500 opacity-60";
+                }
+            });
+
+            const dot = document.getElementById(`prog-dot-${currentQuestionIdx}`);
+            const fbText = document.getElementById('quiz-feedback-text');
+
+            if (isCorrect) {
+                playTone('correct');
+                currentScore += 10;
+                correctCount++;
+                categoryCorrect[q.category]++;
+                document.getElementById('hud-live-score').textContent = `Skor: ${currentScore}`;
+
+                if (dot) {
+                    dot.className = "w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-extrabold bg-emerald-500 text-slate-950 border border-emerald-200";
+                }
+                colorize3DStone(currentQuestionIdx, 0x10b981);
+                fbText.innerHTML = `<span class="text-emerald-400 font-extrabold"><i class="fa-solid fa-check-circle mr-1"></i> Tepat Sekali! (+10 Poin)</span> <span class="text-slate-200">${q.explanation}</span>`;
+            } else {
+                playTone('wrong');
+                if (dot) {
+                    dot.className = "w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-extrabold bg-rose-600 text-white border border-rose-300";
+                }
+                colorize3DStone(currentQuestionIdx, 0xf43f5e);
+                fbText.innerHTML = `<span class="text-rose-400 font-extrabold"><i class="fa-solid fa-times-circle mr-1"></i> Kurang Tepat!</span> <span class="text-slate-200">${q.explanation}</span>`;
+            }
+
+            const nextBtn = document.getElementById('btn-next-question');
+            if (currentQuestionIdx === questionsBank.length - 1) {
+                nextBtn.innerHTML = `Lihat Hasil & Simpan Skor <i class="fa-solid fa-flag-checkered ml-1"></i>`;
+            } else {
+                nextBtn.innerHTML = `Lanjut ke Soal ${currentQuestionIdx + 2} <i class="fa-solid fa-arrow-right ml-1"></i>`;
+            }
+
+            const fbBar = document.getElementById('quiz-feedback-bar');
+            fbBar.classList.remove('hidden');
+            fbBar.classList.add('flex');
+        }
+
+        function nextQuestion() {
+            playTone('click');
+            if (currentQuestionIdx < questionsBank.length - 1) {
+                currentQuestionIdx++;
+                moveHeroToStone(currentQuestionIdx);
+                loadCurrentQuestion();
+            } else {
+                // Move Hero to Final Victory Temple
+                moveHeroToStone(10);
+                finishQuizAndSaveRecord();
+            }
+        }
+
+        function finishQuizAndSaveRecord() {
+            playTone('correct');
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+
+            // Save student record to Spreadsheet Array (5 Jenis Penokohan)
+            const record = {
+                name: currentStudentName,
+                className: selectedClass,
+                langsung: `${categoryCorrect["Secara Langsung"]}/2`,
+                dialog: `${categoryCorrect["Melalui Dialog"]}/2`,
+                fisik: `${categoryCorrect["Ciri Fisik"]}/2`,
+                tindakan: `${categoryCorrect["Tindakan Tokoh"]}/2`,
+                pikiran: `${categoryCorrect["Pikiran & Perasaan"]}/2`,
+                correct: correctCount,
+                score: currentScore,
+                timestamp: timeStr
+            };
+            studentSpreadsheetRecords.push(record);
+            updateSpreadsheetBadge();
+
+            // Populate Result UI
+            document.getElementById('res-student-name').textContent = currentStudentName.toUpperCase();
+            document.getElementById('res-student-class').textContent = selectedClass;
+            document.getElementById('res-timestamp').textContent = timeStr;
+            document.getElementById('res-final-score').textContent = currentScore;
+            document.getElementById('res-correct-count').textContent = `${correctCount} / 10`;
+
+            let predikat = "Perlu Bimbingan";
+            if (currentScore >= 90) predikat = "Sangat Baik (A)";
+            else if (currentScore >= 80) predikat = "Baik (B)";
+            else if (currentScore >= 70) predikat = "Cukup (C)";
+            document.getElementById('res-grade-label').textContent = predikat;
+
+            document.getElementById('res-cat-langsung').textContent = `${categoryCorrect["Secara Langsung"]} / 2`;
+            document.getElementById('res-cat-dialog').textContent = `${categoryCorrect["Melalui Dialog"]} / 2`;
+            document.getElementById('res-cat-fisik').textContent = `${categoryCorrect["Ciri Fisik"]} / 2`;
+            document.getElementById('res-cat-tindakan').textContent = `${categoryCorrect["Tindakan Tokoh"]} / 2`;
+            document.getElementById('res-cat-pikiran').textContent = `${categoryCorrect["Pikiran & Perasaan"]} / 2`;
+
+            // Switch to Result Screen
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('flex');
+
+            const resScreen = document.getElementById('screen-result');
+            resScreen.classList.remove('hidden');
+            resScreen.classList.add('flex');
+        }
+
+        function returnToHome() {
+            playTone('click');
+            document.getElementById('input-student-name').value = '';
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('flex');
+            document.getElementById('screen-home').classList.remove('hidden');
+
+            document.getElementById('hud-player-info').classList.add('hidden');
+            document.getElementById('hud-score-pill').classList.add('hidden');
+
+            reset3DStonesColor();
+            moveHeroToStone(0);
+        }
+
+        /* ==========================================
+           5. SPREADSHEET GURU (FILTER, CSV, COPY TSV)
+           ========================================== */
+        function updateSpreadsheetBadge() {
+            document.getElementById('badge-total-records').textContent = studentSpreadsheetRecords.length;
+        }
+
+        function openSpreadsheetModal() {
+            playTone('click');
+            renderSpreadsheetTable();
+            const modal = document.getElementById('modal-spreadsheet');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeSpreadsheetModal() {
+            playTone('click');
+            const modal = document.getElementById('modal-spreadsheet');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function filterSpreadsheet(cls) {
+            playTone('click');
+            activeFilterClass = cls;
+            ['ALL', '9A', '9B', '9C', '9D'].forEach(c => {
+                const btn = document.getElementById(`flt-${c}`);
+                if (c === cls) {
+                    btn.className = "px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-extrabold text-xs transition-all";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold text-xs transition-all";
+                }
+            });
+            renderSpreadsheetTable();
+        }
+
+        function getFilteredRecords() {
+            if (activeFilterClass === 'ALL') return studentSpreadsheetRecords;
+            return studentSpreadsheetRecords.filter(r => r.className === activeFilterClass);
+        }
+
+        function renderSpreadsheetTable() {
+            const tbody = document.getElementById('spreadsheet-tbody');
+            const records = getFilteredRecords();
+            tbody.innerHTML = '';
+
+            if (records.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="py-10 text-center text-slate-400 italic">
+                            Belum ada data murid untuk filter kelas ini. Silakan kerjakan kuis atau klik tombol <strong>"+ Data Contoh"</strong> di kanan atas untuk simulasi.
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('stat-count').textContent = "0 Siswa";
+                document.getElementById('stat-avg').textContent = "0";
+                document.getElementById('stat-max').textContent = "0";
+                document.getElementById('stat-pass').textContent = "0%";
+                return;
+            }
+
+            let sumScore = 0;
+            let maxScore = 0;
+            let passCount = 0;
+
+            records.forEach((rec, idx) => {
+                sumScore += rec.score;
+                if (rec.score > maxScore) maxScore = rec.score;
+                if (rec.score >= 70) passCount++;
+
+                const scoreBadgeClass = rec.score >= 80
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                    : rec.score >= 70
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    : 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/60 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 px-2.5 font-bold text-slate-400">${idx + 1}</td>
+                    <td class="py-3 px-2.5 font-bold text-white">${rec.name}</td>
+                    <td class="py-3 px-2 text-center">
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs">${rec.className}</span>
+                    </td>
+                    <td class="py-3 px-2 text-center text-slate-300">${rec.langsung}</td>
+                    <td class="py-3 px-2 text-center text-slate-300">${rec.dialog}</td>
+                    <td class="py-3 px-2 text-center text-slate-300">${rec.fisik}</td>
+                    <td class="py-3 px-2 text-center text-slate-300">${rec.tindakan}</td>
+                    <td class="py-3 px-2 text-center text-slate-300">${rec.pikiran}</td>
+                    <td class="py-3 px-2 text-center font-bold text-slate-200">${rec.correct}/10</td>
+                    <td class="py-3 px-2.5 text-center">
+                        <span class="px-3 py-1 rounded-lg border font-black text-xs ${scoreBadgeClass}">${rec.score}</span>
+                    </td>
+                    <td class="py-3 px-2.5 text-slate-400 text-xs">${rec.timestamp}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const avg = (sumScore / records.length).toFixed(1);
+            const passRate = Math.round((passCount / records.length) * 100);
+
+            document.getElementById('stat-count').textContent = `${records.length} Siswa`;
+            document.getElementById('stat-avg').textContent = avg;
+            document.getElementById('stat-max').textContent = maxScore;
+            document.getElementById('stat-pass').textContent = `${passRate}%`;
+        }
+
+        function addDemoStudents() {
+            playTone('click');
+            const demoList = [
+                { name: "Alya Putri Rahmawati", className: "9A", langsung: "2/2", dialog: "2/2", fisik: "2/2", tindakan: "2/2", pikiran: "2/2", correct: 10, score: 100, timestamp: "08:15:20 WIB" },
+                { name: "Bima Pratama Wijaya", className: "9B", langsung: "2/2", dialog: "2/2", fisik: "1/2", tindakan: "2/2", pikiran: "2/2", correct: 9, score: 90, timestamp: "08:18:44 WIB" },
+                { name: "Citra Kirana Dewi", className: "9C", langsung: "2/2", dialog: "1/2", fisik: "2/2", tindakan: "2/2", pikiran: "1/2", correct: 8, score: 80, timestamp: "08:21:10 WIB" },
+                { name: "Dimas Anggara Putra", className: "9D", langsung: "1/2", dialog: "2/2", fisik: "2/2", tindakan: "1/2", pikiran: "2/2", correct: 8, score: 80, timestamp: "08:25:05 WIB" }
+            ];
+            demoList.forEach(d => studentSpreadsheetRecords.push(d));
+            updateSpreadsheetBadge();
+            renderSpreadsheetTable();
+            showToastBanner("4 Data Contoh Siswa (9A-9D) berhasil ditambahkan!");
+        }
+
+        function downloadCSVSpreadsheet() {
+            const records = getFilteredRecords();
+            if (records.length === 0) {
+                playTone('wrong');
+                showToastBanner("Tabel masih kosong! Belum ada data untuk diunduh.");
+                return;
+            }
+            playTone('click');
+
+            const headers = ["No", "Nama Siswa", "Kelas", "Secara Langsung (2)", "Melalui Dialog (2)", "Ciri Fisik (2)", "Tindakan Tokoh (2)", "Pikiran & Perasaan (2)", "Total Benar", "Skor Akhir", "Waktu Selesai"];
+            const rows = records.map((r, i) => [
+                i + 1,
+                `"${r.name.replace(/"/g, '""')}"`,
+                r.className,
+                `"${r.langsung}"`,
+                `"${r.dialog}"`,
+                `"${r.fisik}"`,
+                `"${r.tindakan}"`,
+                `"${r.pikiran}"`,
+                r.correct,
+                r.score,
+                `"${r.timestamp}"`
+            ]);
+
+            // Add UTF-8 BOM so Microsoft Excel opens Indonesian columns cleanly
+            const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Rekap_Skor_Penokohan_Legenda_Kelas_${activeFilterClass}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToastBanner("File Spreadsheet (.CSV) berhasil diunduh!");
+        }
+
+        function copySpreadsheetTSV() {
+            const records = getFilteredRecords();
+            if (records.length === 0) {
+                playTone('wrong');
+                showToastBanner("Tabel masih kosong!");
+                return;
+            }
+            playTone('click');
+
+            const headers = ["No", "Nama Siswa", "Kelas", "Secara Langsung (2)", "Melalui Dialog (2)", "Ciri Fisik (2)", "Tindakan Tokoh (2)", "Pikiran & Perasaan (2)", "Total Benar", "Skor Akhir", "Waktu Selesai"];
+            const rows = records.map((r, i) => [
+                i + 1,
+                r.name,
+                r.className,
+                r.langsung,
+                r.dialog,
+                r.fisik,
+                r.tindakan,
+                r.pikiran,
+                r.correct,
+                r.score,
+                r.timestamp
+            ]);
+
+            const tsvText = [headers.join("\t"), ...rows.map(e => e.join("\t"))].join("\n");
+            const textarea = document.createElement("textarea");
+            textarea.value = tsvText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+
+            showToastBanner("Data disalin! Silakan Paste (Ctrl+V) di Excel atau Google Sheets.");
+        }
+
+        function clearSpreadsheetData() {
+            playTone('click');
+            studentSpreadsheetRecords.length = 0;
+            updateSpreadsheetBadge();
+            renderSpreadsheetTable();
+            showToastBanner("Data tabel berhasil direset.");
+        }
+
+        function showToastBanner(msg) {
+            const toast = document.getElementById('toast-banner');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3200);
+        }
+
+        /* =====================================================
+           6. THREE.JS 3D NUSANTARA STEPPING STONES ARENA
+           ===================================================== */
+        let scene, camera, renderer, clock;
+        let heroMeshGroup;
+        let heroTargetPosition = new THREE.Vector3();
+        let cameraTargetLookAt = new THREE.Vector3();
+        const stonePlatforms = [];
+        const floatingCrystals = [];
+
+        // Camera Orbit Offset
+        let isDragging = false;
+        let prevPointer = { x: 0, y: 0 };
+        let orbitAngleOffset = 0;
+        let cameraHeightOffset = 7.5;
+
+        function initThreeJSWorld() {
+            const container = document.getElementById('canvas-3d');
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x091326, 0.015);
+
+            camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 200);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            clock = new THREE.Clock();
+
+            // Lighting
+            const ambient = new THREE.AmbientLight(0xfffaed, 0.75);
+            scene.add(ambient);
+
+            const sunLight = new THREE.DirectionalLight(0xffcf70, 1.25);
+            sunLight.position.set(18, 35, 25);
+            sunLight.castShadow = true;
+            scene.add(sunLight);
+
+            // Sacred Lake / Sea Base
+            const waterGeo = new THREE.CylinderGeometry(85, 85, 2, 64);
+            const waterMat = new THREE.MeshPhongMaterial({
+                color: 0x0c4a6e,
+                emissive: 0x082f49,
+                shininess: 75,
+                flatShading: true
+            });
+            const water = new THREE.Mesh(waterGeo, waterMat);
+            water.position.y = -1.8;
+            water.receiveShadow = true;
+            scene.add(water);
+
+            // Create 10 Stepping Stones + 1 Final Candi Sanctuary (Index 0 to 10)
+            for (let i = 0; i <= 10; i++) {
+                const posX = (i - 5) * 4.6;
+                const posZ = Math.sin(i * 0.75) * 3.8;
+
+                if (i < 10) {
+                    createSteppingStone(i, posX, posZ);
+                } else {
+                    createFinalCandiIsland(posX, posZ);
+                }
+            }
+
+            // Background Nusantara Volcano & Mountains Silhouette
+            createBackgroundMountains();
+
+            // Create Hero Character 3D
+            createHero3D();
+            moveHeroToStone(0);
+
+            // Pointer Orbit Events
+            const dom = renderer.domElement;
+            dom.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                prevPointer = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - prevPointer.x;
+                const dy = e.clientY - prevPointer.y;
+                orbitAngleOffset -= dx * 0.005;
+                cameraHeightOffset = Math.max(4, Math.min(14, cameraHeightOffset + dy * 0.03));
+                prevPointer = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function createSteppingStone(index, x, z) {
+            const group = new THREE.Group();
+            group.position.set(x, 0, z);
+
+            // Base Rock Pillar
+            const baseGeo = new THREE.CylinderGeometry(1.75, 1.35, 1.6, 8);
+            const baseMat = new THREE.MeshLambertMaterial({ color: 0x64748b, flatShading: true });
+            const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+            baseMesh.position.y = -0.2;
+            group.add(baseMesh);
+
+            // Top Glowing Pad
+            const topGeo = new THREE.CylinderGeometry(1.85, 1.75, 0.35, 8);
+            const topMat = new THREE.MeshPhongMaterial({ color: 0xf59e0b, shininess: 60 });
+            const topMesh = new THREE.Mesh(topGeo, topMat);
+            topMesh.position.y = 0.75;
+            group.add(topMesh);
+
+            // Floating Question Crystal above Stone
+            const crysGeo = new THREE.OctahedronGeometry(0.42, 0);
+            const crysMat = new THREE.MeshPhongMaterial({ color: 0x38bdf8, emissive: 0x0284c7, shininess: 90 });
+            const crystal = new THREE.Mesh(crysGeo, crysMat);
+            crystal.position.y = 2.6;
+            group.add(crystal);
+            floatingCrystals.push({ mesh: crystal, phase: index * 0.7 });
+
+            scene.add(group);
+            stonePlatforms.push({ group, topMesh, x, z, baseY: 0, phase: index * 0.6 });
+        }
+
+        function createFinalCandiIsland(x, z) {
+            const group = new THREE.Group();
+            group.position.set(x + 1.2, 0, z);
+
+            const islandBase = new THREE.Mesh(
+                new THREE.CylinderGeometry(3.4, 2.4, 2.0, 10),
+                new THREE.MeshLambertMaterial({ color: 0x15803d, flatShading: true })
+            );
+            islandBase.position.y = -0.1;
+            group.add(islandBase);
+
+            // Candi Prambanan / Nusantara Silhouette
+            for (let level = 0; level < 4; level++) {
+                const size = 2.4 - level * 0.45;
+                const block = new THREE.Mesh(
+                    new THREE.BoxGeometry(size, 0.6, size),
+                    new THREE.MeshLambertMaterial({ color: 0x475569 })
+                );
+                block.position.y = 1.1 + level * 0.6;
+                group.add(block);
+            }
+            const stupa = new THREE.Mesh(
+                new THREE.ConeGeometry(0.55, 1.3, 8),
+                new THREE.MeshPhongMaterial({ color: 0xfbbf24, emissive: 0xb45309 })
+            );
+            stupa.position.y = 3.8;
+            group.add(stupa);
+
+            scene.add(group);
+            stonePlatforms.push({ group, topMesh: null, x: x + 1.2, z, baseY: 0, phase: 10 });
+        }
+
+        function createBackgroundMountains() {
+            // Tangkuban Perahu / Volcano Backdrop
+            const volcano = new THREE.Mesh(
+                new THREE.ConeGeometry(14, 15, 9),
+                new THREE.MeshLambertMaterial({ color: 0x1e293b, flatShading: true })
+            );
+            volcano.position.set(-14, 5, -24);
+            scene.add(volcano);
+
+            const mountain2 = new THREE.Mesh(
+                new THREE.ConeGeometry(18, 20, 8),
+                new THREE.MeshLambertMaterial({ color: 0x0f172a, flatShading: true })
+            );
+            mountain2.position.set(16, 7, -28);
+            scene.add(mountain2);
+        }
+
+        function createHero3D() {
+            heroMeshGroup = new THREE.Group();
+
+            // Body Armor
+            const body = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.38, 0.48, 1.05, 8),
+                new THREE.MeshLambertMaterial({ color: 0xdc2626 })
+            );
+            body.position.y = 0.55;
+
+            // Head
+            const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.36, 12, 12),
+                new THREE.MeshLambertMaterial({ color: 0xfde68a })
+            );
+            head.position.y = 1.35;
+
+            // Golden Headband (Ikat Kepala Ksatria)
+            const headband = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.38, 0.38, 0.16, 12),
+                new THREE.MeshPhongMaterial({ color: 0xf59e0b })
+            );
+            headband.position.y = 1.45;
+
+            heroMeshGroup.add(body, head, headband);
+            scene.add(heroMeshGroup);
+        }
+
+        function moveHeroToStone(stoneIdx) {
+            const target = stonePlatforms[stoneIdx] || stonePlatforms[0];
+            heroTargetPosition.set(target.x, 1.0, target.z);
+            cameraTargetLookAt.set(target.x, 1.2, target.z + 2.2);
+        }
+
+        function colorize3DStone(stoneIdx, hexColor) {
+            const st = stonePlatforms[stoneIdx];
+            if (st && st.topMesh) {
+                st.topMesh.material.color.setHex(hexColor);
+            }
+        }
+
+        function reset3DStonesColor() {
+            stonePlatforms.forEach(st => {
+                if (st.topMesh) {
+                    st.topMesh.material.color.setHex(0xf59e0b);
+                }
+            });
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const t = clock.getElapsedTime();
+
+            // Gentle Bobbing for Stones & Rotating Crystals
+            stonePlatforms.forEach(st => {
+                st.group.position.y = st.baseY + Math.sin(t * 2 + st.phase) * 0.12;
+            });
+
+            floatingCrystals.forEach(c => {
+                c.mesh.rotation.y = t * 1.8 + c.phase;
+                c.mesh.position.y = 2.6 + Math.sin(t * 3 + c.phase) * 0.18;
+            });
+
+            // Smooth Hero Movement & Hopping
+            if (heroMeshGroup) {
+                heroMeshGroup.position.lerp(heroTargetPosition, 0.08);
+                heroMeshGroup.position.y = 1.0 + Math.abs(Math.sin(t * 4.5)) * 0.28;
+                heroMeshGroup.rotation.y += 0.025;
+            }
+
+            // Smooth Camera Follow
+            const desiredCamX = cameraTargetLookAt.x + Math.sin(orbitAngleOffset) * 14;
+            const desiredCamZ = cameraTargetLookAt.z + Math.cos(orbitAngleOffset) * 14;
+            camera.position.x += (desiredCamX - camera.position.x) * 0.06;
+            camera.position.y += (cameraHeightOffset - camera.position.y) * 0.06;
+            camera.position.z += (desiredCamZ - camera.position.z) * 0.06;
+            camera.lookAt(cameraTargetLookAt);
+
+            renderer.render(scene, camera);
+        }
+
+        window.onload = function () {
+            initThreeJSWorld();
+            animate3D();
+        };
+    </script>
+</body>
+</html>
